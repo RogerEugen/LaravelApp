@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../app_controller.dart';
-import '../../theme.dart';
 import '../../widgets/common.dart';
 
 class AdminUsersScreen extends StatefulWidget {
@@ -80,14 +79,27 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       return Card(
                         child: ListTile(
                           contentPadding: const EdgeInsets.all(14),
-                          leading: CircleAvatar(
-                            backgroundColor: active
-                                ? const Color(0xFFE7F8EF)
-                                : const Color(0xFFFFE9E7),
-                            child: Icon(
-                              active ? Icons.person : Icons.person_off,
-                              color: active ? Colors.green : laravelRed,
-                            ),
+                          leading: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              UserAvatar(user: user),
+                              Positioned(
+                                right: -2,
+                                bottom: -2,
+                                child: Container(
+                                  width: 13,
+                                  height: 13,
+                                  decoration: BoxDecoration(
+                                    color: active ? Colors.green : Colors.grey,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           title: Text(
                             user['name'].toString(),

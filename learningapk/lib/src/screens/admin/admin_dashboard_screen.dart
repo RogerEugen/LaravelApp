@@ -165,10 +165,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ...recent.map(
                     (user) => Card(
                       child: ListTile(
-                        leading: const CircleAvatar(
-                          backgroundColor: Color(0xFFFFE9E7),
-                          child: Icon(Icons.person, color: laravelRed),
-                        ),
+                        leading: UserAvatar(user: user),
                         title: Text(user['name'].toString()),
                         subtitle: Text(user['email'].toString()),
                       ),
