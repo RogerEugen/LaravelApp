@@ -9,12 +9,14 @@ use App\Models\Topic;
 use App\Models\UserProgress;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class LearningController extends Controller
 {
     public function dashboard(Request $request): JsonResponse
     {
+        $sw = $request->query('lang') === 'sw';
         $user = $request->user('sanctum');
         $userId = $user?->id;
         $total = Lesson::active()->count();
@@ -64,14 +66,15 @@ class LearningController extends Controller
             ],
             'continue_learning' => $last?->lesson ? [
                 'lesson_id' => $last->lesson->id,
-                'lesson_title' => $last->lesson->title,
-                'topic_title' => $last->lesson->topic->title,
+                'lesson_title' => $sw && $last->lesson->title_sw ? $last->lesson->title_sw : $last->lesson->title,
+                'topic_title' => $sw && $last->lesson->topic->title_sw ? $last->lesson->topic->title_sw : $last->lesson->topic->title,
             ] : null,
         ]);
     }
 
     public function topics(Request $request): JsonResponse
     {
+        $sw = $request->query('lang') === 'sw';
         $userId = $request->user('sanctum')?->id;
         $topics = Topic::active()
             ->ordered()
@@ -79,9 +82,9 @@ class LearningController extends Controller
             ->get()
             ->map(fn (Topic $topic) => [
                 'id' => $topic->id,
-                'title' => $topic->title,
+                'title' => $sw && $topic->title_sw ? $topic->title_sw : $topic->title,
                 'slug' => $topic->slug,
-                'description' => $topic->description,
+                'description' => $sw && $topic->description_sw ? $topic->description_sw : $topic->description,
                 'icon' => $topic->icon,
                 'level' => $topic->level,
                 'lesson_count' => $topic->lessons->count(),
@@ -97,6 +100,7 @@ class LearningController extends Controller
 
     public function topic(Request $request, Topic $topic): JsonResponse
     {
+        $sw = $request->query('lang') === 'sw';
         abort_unless($topic->is_active, 404);
         $userId = $request->user('sanctum')?->id;
         $progress = $userId
@@ -107,8 +111,8 @@ class LearningController extends Controller
 
         $lessons = $topic->lessons()->active()->ordered()->get()->map(fn (Lesson $lesson) => [
             'id' => $lesson->id,
-            'title' => $lesson->title,
-            'short_description' => $lesson->short_description,
+            'title' => $sw && $lesson->title_sw ? $lesson->title_sw : $lesson->title,
+            'short_description' => $sw && $lesson->short_description_sw ? $lesson->short_description_sw : $lesson->short_description,
             'estimated_minutes' => $lesson->estimated_minutes,
             'order_number' => $lesson->order_number,
             'is_completed' => (bool) ($progress[$lesson->id]?->is_completed ?? false),
@@ -117,8 +121,8 @@ class LearningController extends Controller
 
         return $this->success([
             'id' => $topic->id,
-            'title' => $topic->title,
-            'description' => $topic->description,
+            'title' => $sw && $topic->title_sw ? $topic->title_sw : $topic->title,
+            'description' => $sw && $topic->description_sw ? $topic->description_sw : $topic->description,
             'level' => $topic->level,
             'lessons' => $lessons,
         ]);
@@ -126,6 +130,7 @@ class LearningController extends Controller
 
     public function lesson(Request $request, Lesson $lesson): JsonResponse
     {
+        $sw = $request->query('lang') === 'sw';
         abort_unless($lesson->is_active, 404);
         $userId = $request->user('sanctum')?->id;
         $progress = $userId
@@ -139,12 +144,20 @@ class LearningController extends Controller
         return $this->success([
             'id' => $lesson->id,
             'topic_id' => $lesson->topic_id,
-            'topic_title' => $lesson->topic->title,
-            'title' => $lesson->title,
-            'short_description' => $lesson->short_description,
-            'content' => $lesson->content,
-            'code_example' => $lesson->code_example,
-            'real_life_example' => $lesson->real_life_example,
+            'topic_title' => $sw && $lesson->topic->title_sw ? $lesson->topic->title_sw : $lesson->topic->title,
+            'title' => $sw && $lesson->title_sw ? $lesson->title_sw : $lesson->title,
+            'short_description' => $sw && $lesson->short_description_sw ? $lesson->short_description_sw : $lesson->short_description,
+            'content' => $sw && $lesson->content_sw ? $lesson->content_sw : $lesson->content,
+            'code_example' => $sw && $lesson->code_example_sw ? $lesson->code_example_sw : $lesson->code_example,
+            'real_life_example' => $sw && $lesson->real_life_example_sw ? $lesson->real_life_example_sw : $lesson->real_life_example,
+            'video_url' => $lesson->video_path ? url('/api/v1/lessons/'.$lesson->id.'/video') : null,
+            'video_duration_seconds' => $lesson->video_duration_seconds,
+            'resources' => $lesson->resources->map(fn ($resource) => [
+                'id' => $resource->id,
+                'title' => $sw && $resource->title_sw ? $resource->title_sw : $resource->title,
+                'description' => $sw && $resource->description_sw ? $resource->description_sw : $resource->description,
+                'url' => $resource->url,
+            ]),
             'estimated_minutes' => $lesson->estimated_minutes,
             'has_quiz' => $lesson->quizzes()->active()->exists(),
             'is_completed' => (bool) $progress?->is_completed,
@@ -168,22 +181,28 @@ class LearningController extends Controller
 
     public function quiz(Request $request, Lesson $lesson): JsonResponse
     {
+        $sw = $request->query('lang') === 'sw';
         $quizzes = $lesson->quizzes()->active()->with('options')->get()->map(fn (Quiz $quiz) => [
             'id' => $quiz->id,
-            'question' => $quiz->question,
+            'question' => $sw && $quiz->question_sw ? $quiz->question_sw : $quiz->question,
             'difficulty' => $quiz->difficulty,
-            'options' => $quiz->options->map->only(['id', 'option_key', 'option_text'])->values(),
+            'options' => $quiz->options->map(fn ($option) => [
+                'id' => $option->id,
+                'option_key' => $option->option_key,
+                'option_text' => $sw && $option->option_text_sw ? $option->option_text_sw : $option->option_text,
+            ])->values(),
         ]);
 
         return $this->success([
             'lesson_id' => $lesson->id,
-            'lesson_title' => $lesson->title,
+            'lesson_title' => $sw && $lesson->title_sw ? $lesson->title_sw : $lesson->title,
             'questions' => $quizzes,
         ]);
     }
 
     public function submitQuiz(Request $request, Lesson $lesson): JsonResponse
     {
+        $sw = $request->query('lang') === 'sw';
         $data = $request->validate([
             'answers' => ['required', 'array', 'min:1'],
             'answers.*.quiz_id' => [
@@ -204,11 +223,11 @@ class LearningController extends Controller
             $isCorrect = (bool) $selected->is_correct;
             $correct += $isCorrect ? 1 : 0;
             $results[] = [
-                'question' => $quiz->question,
-                'selected_answer' => $selected->option_text,
-                'correct_answer' => $correctOption?->option_text,
+                'question' => $sw && $quiz->question_sw ? $quiz->question_sw : $quiz->question,
+                'selected_answer' => $sw && $selected->option_text_sw ? $selected->option_text_sw : $selected->option_text,
+                'correct_answer' => $sw && $correctOption?->option_text_sw ? $correctOption->option_text_sw : $correctOption?->option_text,
                 'is_correct' => $isCorrect,
-                'explanation' => $quiz->explanation,
+                'explanation' => $sw && $quiz->explanation_sw ? $quiz->explanation_sw : $quiz->explanation,
             ];
         }
 
@@ -228,16 +247,26 @@ class LearningController extends Controller
         ], $score >= 60 ? 'Hongera, umefaulu!' : 'Jaribu tena; unaweza!');
     }
 
+    public function video(Lesson $lesson): mixed
+    {
+        abort_unless($lesson->video_path && Storage::disk('public')->exists($lesson->video_path), 404);
+
+        return response()->file(Storage::disk('public')->path($lesson->video_path), [
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
     public function progress(Request $request): JsonResponse
     {
+        $sw = $request->query('lang') === 'sw';
         $items = UserProgress::with('lesson.topic')
             ->where('user_id', $request->user()->id)
             ->latest('updated_at')
             ->get()
             ->map(fn (UserProgress $item) => [
                 'lesson_id' => $item->lesson_id,
-                'lesson_title' => $item->lesson->title,
-                'topic_title' => $item->lesson->topic->title,
+                'lesson_title' => $sw && $item->lesson->title_sw ? $item->lesson->title_sw : $item->lesson->title,
+                'topic_title' => $sw && $item->lesson->topic->title_sw ? $item->lesson->topic->title_sw : $item->lesson->topic->title,
                 'is_completed' => $item->is_completed,
                 'best_score' => $item->best_score,
                 'completed_at' => $item->completed_at,

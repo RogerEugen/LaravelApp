@@ -15,6 +15,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/topics', [LearningController::class, 'topics']);
     Route::get('/topics/{topic}', [LearningController::class, 'topic']);
     Route::get('/lessons/{lesson}', [LearningController::class, 'lesson']);
+    Route::get('/lessons/{lesson}/video', [LearningController::class, 'video']);
 
     Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
@@ -35,6 +36,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/dashboard', [AdminController::class, 'dashboard']);
             Route::get('/users', [AdminController::class, 'users']);
             Route::patch('/users/{user}/toggle', [AdminController::class, 'toggleUser']);
+            Route::get('/supports', [AdminController::class, 'supports']);
+            Route::post('/supports', [AdminController::class, 'storeSupport']);
 
             Route::get('/topics', [AdminController::class, 'topics']);
             Route::post('/topics', [AdminController::class, 'storeTopic']);

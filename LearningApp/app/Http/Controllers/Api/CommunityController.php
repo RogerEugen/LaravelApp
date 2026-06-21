@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Log;
 
 class CommunityController extends Controller
 {
@@ -33,7 +34,7 @@ class CommunityController extends Controller
 
     public function contacts(Request $request): JsonResponse
     {
-        if ($request->user()->role === 'admin') {
+        if (in_array($request->user()->role, ['admin', 'support'], true)) {
             $contacts = User::where('role', 'student')
                 ->withCount(['sentMessages as unread_count' => fn ($query) => $query
                     ->where('recipient_id', $request->user()->id)
@@ -41,9 +42,9 @@ class CommunityController extends Controller
                 ->latest()
                 ->get(['id', 'name', 'username', 'email', 'is_active', 'profile_photo_path', 'created_at']);
         } else {
-            $contacts = User::where('role', 'admin')
+            $contacts = User::whereIn('role', ['admin', 'support'])
                 ->where('is_active', true)
-                ->get(['id', 'name', 'username', 'email', 'profile_photo_path']);
+                ->get(['id', 'name', 'username', 'email', 'role', 'expertise', 'bio', 'profile_photo_path']);
         }
 
         return response()->json(['success' => true, 'data' => $contacts]);
@@ -85,7 +86,14 @@ class CommunityController extends Controller
             'message' => trim($data['message']),
         ]);
 
-        broadcast(new ChatMessageSent($message));
+        try {
+            broadcast(new ChatMessageSent($message));
+        } catch (\Throwable $exception) {
+            Log::warning('Realtime broadcast failed; message remains stored.', [
+                'message_id' => $message->id,
+                'error' => $exception->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'success' => true,
@@ -96,8 +104,9 @@ class CommunityController extends Controller
 
     private function ensureCanChat(User $current, User $other): void
     {
-        $allowed = ($current->role === 'admin' && $other->role === 'student')
-            || ($current->role === 'student' && $other->role === 'admin');
+        $staffRoles = ['admin', 'support'];
+        $allowed = (in_array($current->role, $staffRoles, true) && $other->role === 'student')
+            || ($current->role === 'student' && in_array($other->role, $staffRoles, true));
 
         abort_unless($allowed && $other->is_active, 403, 'Mazungumzo haya hayaruhusiwi.');
     }
