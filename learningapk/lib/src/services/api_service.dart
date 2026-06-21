@@ -87,6 +87,36 @@ class ApiService {
     return json;
   }
 
+  Future<Map<String, dynamic>> postMultipart(
+    String path,
+    Map<String, String> fields, {
+    File? file,
+    String fileField = 'video',
+  }) async {
+    final request = http.MultipartRequest('POST', Uri.parse('$baseUrl$path'));
+    request.headers.addAll({
+      'Accept': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    });
+    request.fields.addAll(fields);
+    if (file != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(fileField, file.path),
+      );
+    }
+    final streamed = await request.send().timeout(const Duration(seconds: 60));
+    final response = await http.Response.fromStream(streamed);
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    _normalizeUrls(json);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException(
+        json['message']?.toString() ?? 'Upload failed.',
+        statusCode: response.statusCode,
+      );
+    }
+    return json;
+  }
+
   String absoluteUrl(String path) {
     final origin = Uri.parse(baseUrl).origin;
     return '$origin${path.startsWith('/') ? path : '/$path'}';

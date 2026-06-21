@@ -14,6 +14,9 @@ class AppController extends ChangeNotifier {
 
   bool get isAuthenticated => api.token != null;
   bool get isAdmin => user?['role'] == 'admin';
+  String get languageCode => locale.languageCode;
+  String localizedPath(String path) =>
+      '$path${path.contains('?') ? '&' : '?'}lang=$languageCode';
 
   Future<void> restoreSession() async {
     final prefs = await SharedPreferences.getInstance();

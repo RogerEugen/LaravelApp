@@ -29,8 +29,14 @@ class LearnLaravelApp extends StatelessWidget {
         listenable: controller,
         builder: (context, _) {
           final home = controller.isAdmin
-              ? AdminShell(controller: controller)
-              : HomeShell(controller: controller);
+              ? AdminShell(
+                  key: ValueKey('admin-${controller.languageCode}'),
+                  controller: controller,
+                )
+              : HomeShell(
+                  key: ValueKey('home-${controller.languageCode}'),
+                  controller: controller,
+                );
           return controller.isAuthenticated
               ? GlobalRealtimeListener(
                   key: ValueKey(controller.user!['id']),

@@ -81,6 +81,12 @@ class AppStrings {
     'progress_title': 'My progress',
     'progress_subtitle': 'Every small step is a win',
     'answered': 'answered',
+    'question': 'QUESTION',
+    'answer_all': 'Answer every question before submitting.',
+    'passed_message': 'Congratulations, you passed!',
+    'retry_message': 'Keep learning and try again.',
+    'no_conversations': 'No conversations yet',
+    'contacts_appear': 'Support experts will appear here.',
   };
 
   static const _sw = <String, String>{
@@ -149,6 +155,12 @@ class AppStrings {
     'progress_title': 'Maendeleo yangu',
     'progress_subtitle': 'Kila hatua ndogo ni ushindi',
     'answered': 'yamejibiwa',
+    'question': 'SWALI',
+    'answer_all': 'Jibu maswali yote kabla ya kutuma.',
+    'passed_message': 'Hongera, umefaulu!',
+    'retry_message': 'Endelea kujifunza, jaribu tena.',
+    'no_conversations': 'Hakuna mazungumzo bado',
+    'contacts_appear': 'Wataalamu wa msaada wataonekana hapa.',
   };
 }
 
