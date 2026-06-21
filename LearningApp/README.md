@@ -4,6 +4,10 @@ Laravel 13 REST API with public learning, Sanctum community accounts, an owner
 admin panel, quizzes, progress tracking, and realtime chat via Laravel Reverb's
 Pusher-compatible WebSocket protocol.
 
+Profile photos are validated as JPG, PNG, or WebP up to 5 MB and stored on the
+public disk. The Flutter app loads the chat alert from
+`/api/v1/notification-sound`.
+
 ## Start locally
 
 ```bash

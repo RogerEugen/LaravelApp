@@ -4,7 +4,9 @@ use App\Events\ChatMessageSent;
 use App\Models\Lesson;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -82,4 +84,31 @@ it('supports realtime community messages between student and admin', function ()
         ->assertJsonPath('data.sender_id', $student->id);
 
     Event::assertDispatched(ChatMessageSent::class);
+});
+
+it('allows a user to upload a profile picture visible in user data', function () {
+    Storage::fake('public');
+    $student = User::where('role', 'student')->firstOrFail();
+    $token = $student->createToken('photo-test')->plainTextToken;
+    $png = base64_decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Z1ZkAAAAASUVORK5CYII='
+    );
+
+    $response = $this->withToken($token)->post('/api/v1/profile', [
+        'profile_photo' => UploadedFile::fake()->createWithContent('avatar.png', $png),
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonStructure(['data' => ['user' => ['profile_photo_url']]]);
+
+    $student = $student->fresh();
+    Storage::disk('public')->assertExists($student->profile_photo_path);
+    $this->get('/api/v1/users/'.$student->id.'/profile-photo')->assertOk();
+});
+
+it('serves the configured chat notification sound', function () {
+    $this->get('/api/v1/notification-sound')
+        ->assertOk()
+        ->assertHeader('content-type', 'audio/mpeg');
 });
