@@ -1,17 +1,45 @@
-# learningapk
+# Learn Laravel Kiswahili Mobile
 
-A new Flutter project.
+Flutter client with a public Laravel introduction slider, free guest lessons,
+community authentication, quizzes, progress, owner administration, and
+realtime user-admin chat. It supports Android 7.0 (API 24) and newer.
 
-## Getting Started
+## Run
 
-This project is a starting point for a Flutter application.
+Start both Laravel services first:
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+cd ../LearningApp
+php artisan serve --host=0.0.0.0 --port=8000
+php artisan reverb:start --host=0.0.0.0 --port=8080
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Then run Flutter:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+flutter run
+```
+
+The default API URL works on the Android emulator:
+
+```text
+http://10.0.2.2:8000/api/v1
+```
+
+For a physical phone, use your computer's LAN address:
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://192.168.1.10:8000/api/v1
+```
+
+The phone and computer must be on the same network, and Laravel should run
+with `--host=0.0.0.0`. Set `REVERB_PUBLIC_HOST` in Laravel's `.env` to the
+computer LAN IP for physical-phone realtime chat.
+
+Admin login:
+
+```text
+rogerscharleseugen
+roger123
+```
