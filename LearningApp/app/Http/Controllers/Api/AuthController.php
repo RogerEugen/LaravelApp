@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -65,6 +66,54 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         return response()->json(['success' => true, 'data' => ['user' => $request->user()]]);
+    }
+
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => ['sometimes', 'required', 'string', 'max:100'],
+            'profile_photo' => ['sometimes', 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+        ]);
+
+        $user = $request->user();
+
+        if ($request->hasFile('profile_photo')) {
+            if ($user->profile_photo_path) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+
+            $data['profile_photo_path'] = $request->file('profile_photo')
+                ->store('profile-photos', 'public');
+        }
+
+        unset($data['profile_photo']);
+        $user->update($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile updated successfully.',
+            'data' => ['user' => $user->fresh()],
+        ]);
+    }
+
+    public function profilePhoto(User $user): mixed
+    {
+        abort_unless(
+            $user->profile_photo_path && Storage::disk('public')->exists($user->profile_photo_path),
+            404,
+        );
+
+        return response()->file(Storage::disk('public')->path($user->profile_photo_path), [
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
+    public function notificationSound(): mixed
+    {
+        return response()->file(public_path('sounds/notification.mp3'), [
+            'Content-Type' => 'audio/mpeg',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
     }
 
     public function logout(Request $request): JsonResponse

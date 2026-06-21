@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::get('/users/{user}/profile-photo', [AuthController::class, 'profilePhoto']);
+    Route::get('/notification-sound', [AuthController::class, 'notificationSound']);
     Route::get('/dashboard', [LearningController::class, 'dashboard']);
     Route::get('/topics', [LearningController::class, 'topics']);
     Route::get('/topics/{topic}', [LearningController::class, 'topic']);
@@ -16,6 +18,7 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
+        Route::post('/profile', [AuthController::class, 'updateProfile']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/lessons/{lesson}/complete', [LearningController::class, 'complete']);
         Route::get('/lessons/{lesson}/quiz', [LearningController::class, 'quiz']);
