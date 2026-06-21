@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_controller.dart';
 import '../auth_gate.dart';
+import '../localization.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import 'quiz_screen.dart';
@@ -53,7 +54,7 @@ class _LessonScreenState extends State<LessonScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Somo')),
+      appBar: AppBar(title: Text(context.tr('lesson'))),
       body: ApiFutureBuilder(
         future: _future,
         onRetry: () => setState(_load),
@@ -87,7 +88,7 @@ class _LessonScreenState extends State<LessonScreen> {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    '${lesson['estimated_minutes']} dakika',
+                    '${lesson['estimated_minutes']} ${context.tr('minutes')}',
                     style: const TextStyle(color: Color(0xFF667085)),
                   ),
                   if (lesson['is_completed'] == true) ...[
@@ -98,8 +99,8 @@ class _LessonScreenState extends State<LessonScreen> {
                       color: Colors.green,
                     ),
                     const SizedBox(width: 5),
-                    const Text(
-                      'Limekamilika',
+                    Text(
+                      context.tr('completed'),
                       style: TextStyle(
                         color: Colors.green,
                         fontWeight: FontWeight.w700,
@@ -110,7 +111,7 @@ class _LessonScreenState extends State<LessonScreen> {
               ),
               const SizedBox(height: 24),
               _SectionCard(
-                title: 'Maelezo ya somo',
+                title: context.tr('lesson_content'),
                 icon: Icons.auto_stories_rounded,
                 child: Text(
                   lesson['content'].toString(),
@@ -124,7 +125,7 @@ class _LessonScreenState extends State<LessonScreen> {
               if (lesson['code_example'] != null) ...[
                 const SizedBox(height: 16),
                 _SectionCard(
-                  title: 'Code mfano',
+                  title: context.tr('code_example'),
                   icon: Icons.terminal_rounded,
                   dark: true,
                   child: SelectableText(
@@ -141,7 +142,7 @@ class _LessonScreenState extends State<LessonScreen> {
               if (lesson['real_life_example'] != null) ...[
                 const SizedBox(height: 16),
                 _SectionCard(
-                  title: 'Mfano wa maisha halisi',
+                  title: context.tr('real_life_example'),
                   icon: Icons.lightbulb_outline_rounded,
                   child: Text(
                     lesson['real_life_example'].toString(),
@@ -163,7 +164,7 @@ class _LessonScreenState extends State<LessonScreen> {
                           ),
                         )
                       : const Icon(Icons.check_circle_outline),
-                  label: const Text('Nimemaliza somo'),
+                  label: Text(context.tr('complete_lesson')),
                 ),
               if (lesson['has_quiz'] == true) ...[
                 const SizedBox(height: 12),
@@ -193,7 +194,7 @@ class _LessonScreenState extends State<LessonScreen> {
                     );
                   },
                   icon: const Icon(Icons.quiz_outlined),
-                  label: const Text('Fanya quiz'),
+                  label: Text(context.tr('take_quiz')),
                 ),
               ],
             ],

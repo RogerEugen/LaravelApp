@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_controller.dart';
+import '../localization.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import 'lesson_screen.dart';
@@ -28,16 +29,16 @@ class _ProgressScreenState extends State<ProgressScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Maendeleo yangu',
-              style: TextStyle(fontWeight: FontWeight.w900),
+              context.tr('progress_title'),
+              style: const TextStyle(fontWeight: FontWeight.w900),
             ),
             Text(
-              'Kila hatua ndogo ni ushindi',
-              style: TextStyle(fontSize: 12, color: Color(0xFF667085)),
+              context.tr('progress_subtitle'),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF667085)),
             ),
           ],
         ),
@@ -53,10 +54,10 @@ class _ProgressScreenState extends State<ProgressScreen> {
               ),
             );
             if (items.isEmpty) {
-              return const EmptyState(
+              return EmptyState(
                 icon: Icons.insights_rounded,
-                title: 'Anza somo lako la kwanza',
-                message: 'Masomo utakayofungua na kumaliza yataonekana hapa.',
+                title: context.tr('start_first_lesson'),
+                message: context.tr('progress_empty'),
               );
             }
             return RefreshIndicator(

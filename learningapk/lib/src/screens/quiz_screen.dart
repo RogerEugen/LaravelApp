@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_controller.dart';
+import '../localization.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 
@@ -64,7 +65,7 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Quiz ya somo')),
+      appBar: AppBar(title: Text(context.tr('lesson_quiz'))),
       body: ApiFutureBuilder(
         future: _future,
         builder: (context, response) {
@@ -76,10 +77,10 @@ class _QuizScreenState extends State<QuizScreen> {
           );
           if (_result != null) return _ResultView(result: _result!);
           if (questions.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.quiz_outlined,
-              title: 'Quiz bado haijawekwa',
-              message: 'Rudi baadae kwa maswali ya somo hili.',
+              title: context.tr('quiz_unavailable'),
+              message: context.tr('quiz_unavailable_message'),
             );
           }
           return ListView(
@@ -93,7 +94,7 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                '${_answers.length}/${questions.length} yamejibiwa',
+                '${_answers.length}/${questions.length} ${context.tr('answered')}',
                 style: const TextStyle(color: Color(0xFF667085)),
               ),
               const SizedBox(height: 8),
@@ -201,7 +202,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         ),
                       )
                     : const Icon(Icons.send_rounded),
-                label: const Text('Tuma majibu'),
+                label: Text(context.tr('submit_answers')),
               ),
             ],
           );
@@ -290,7 +291,9 @@ class _ResultView extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    Text('Jibu sahihi: ${entry.value['correct_answer']}'),
+                    Text(
+                      '${context.tr('correct_answer')}: ${entry.value['correct_answer']}',
+                    ),
                     if (entry.value['explanation'] != null) ...[
                       const SizedBox(height: 7),
                       Text(
@@ -306,7 +309,7 @@ class _ResultView extends StatelessWidget {
         ),
         FilledButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Rudi kwenye somo'),
+          child: Text(context.tr('back_to_lesson')),
         ),
       ],
     );

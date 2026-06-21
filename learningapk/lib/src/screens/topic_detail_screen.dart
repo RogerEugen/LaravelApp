@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_controller.dart';
+import '../localization.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import 'lesson_screen.dart';
@@ -33,7 +34,7 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mada na masomo')),
+      appBar: AppBar(title: Text(context.tr('topic_lessons'))),
       body: PagePadding(
         child: ApiFutureBuilder(
           future: _future,

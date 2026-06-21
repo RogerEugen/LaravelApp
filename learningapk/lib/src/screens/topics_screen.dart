@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_controller.dart';
+import '../localization.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import 'topic_detail_screen.dart';
@@ -28,16 +29,16 @@ class _TopicsScreenState extends State<TopicsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Mada za Laravel',
-              style: TextStyle(fontWeight: FontWeight.w900),
+              context.tr('topics_title'),
+              style: const TextStyle(fontWeight: FontWeight.w900),
             ),
             Text(
-              'Chagua mada, kisha jifunze kwa vitendo',
-              style: TextStyle(fontSize: 12, color: Color(0xFF667085)),
+              context.tr('topics_subtitle'),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF667085)),
             ),
           ],
         ),

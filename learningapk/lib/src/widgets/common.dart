@@ -28,6 +28,51 @@ class LaravelMark extends StatelessWidget {
   }
 }
 
+class UserAvatar extends StatelessWidget {
+  const UserAvatar({
+    super.key,
+    required this.user,
+    this.radius = 24,
+    this.showBorder = false,
+  });
+
+  final Map<String, dynamic> user;
+  final double radius;
+  final bool showBorder;
+
+  @override
+  Widget build(BuildContext context) {
+    final photoUrl = user['profile_photo_url']?.toString();
+    final name = user['name']?.toString() ?? 'User';
+    return Container(
+      padding: EdgeInsets.all(showBorder ? 3 : 0),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: showBorder
+            ? const LinearGradient(colors: [laravelRed, Color(0xFFFFA000)])
+            : null,
+      ),
+      child: CircleAvatar(
+        radius: radius,
+        backgroundColor: const Color(0xFFFFE9E7),
+        backgroundImage: photoUrl != null && photoUrl.isNotEmpty
+            ? NetworkImage(photoUrl)
+            : null,
+        child: photoUrl == null || photoUrl.isEmpty
+            ? Text(
+                name[0].toUpperCase(),
+                style: TextStyle(
+                  color: laravelRed,
+                  fontSize: radius * .72,
+                  fontWeight: FontWeight.w900,
+                ),
+              )
+            : null,
+      ),
+    );
+  }
+}
+
 class PagePadding extends StatelessWidget {
   const PagePadding({super.key, required this.child});
   final Widget child;
