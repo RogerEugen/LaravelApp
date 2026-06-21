@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_controller.dart';
+import '../localization.dart';
 import 'community_screen.dart';
 import 'dashboard_screen.dart';
 import 'profile_screen.dart';
@@ -33,26 +34,26 @@ class _HomeShellState extends State<HomeShell> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (value) => setState(() => _index = value),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Nyumbani',
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home_rounded),
+            label: context.tr('home'),
           ),
           NavigationDestination(
-            icon: Icon(Icons.menu_book_outlined),
-            selectedIcon: Icon(Icons.menu_book),
-            label: 'Masomo',
+            icon: const Icon(Icons.bolt_outlined),
+            selectedIcon: const Icon(Icons.bolt_rounded),
+            label: context.tr('learn'),
           ),
           NavigationDestination(
-            icon: Icon(Icons.forum_outlined),
-            selectedIcon: Icon(Icons.forum),
-            label: 'Community',
+            icon: const Icon(Icons.forum_outlined),
+            selectedIcon: const Icon(Icons.forum_rounded),
+            label: context.tr('community'),
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Wasifu',
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person_rounded),
+            label: context.tr('profile'),
           ),
         ],
       ),

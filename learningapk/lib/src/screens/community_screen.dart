@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../app_controller.dart';
 import '../auth_gate.dart';
+import '../localization.dart';
 import '../services/realtime_service.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -34,17 +35,16 @@ class _CommunityScreenState extends State<CommunityScreen> {
     if (!widget.controller.isAuthenticated) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text(
-            'Laravel Community TZ',
-            style: TextStyle(fontWeight: FontWeight.w900),
+          title: Text(
+            context.tr('community_title'),
+            style: const TextStyle(fontWeight: FontWeight.w900),
           ),
         ),
         body: EmptyStateWithAction(
           icon: Icons.forum_rounded,
-          title: 'Jiunge na community',
-          message:
-              'Jisajili ili uongee moja kwa moja na admin, uulize maswali na kupata msaada wa Laravel.',
-          label: 'Jisajili au ingia',
+          title: context.tr('join_community'),
+          message: context.tr('join_message'),
+          label: context.tr('sign_in_or_register'),
           onPressed: () async {
             if (await requireCommunityLogin(context, widget.controller)) {
               setState(_load);
@@ -58,7 +58,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.controller.isAdmin ? 'Students chat' : 'Laravel Community TZ',
+          widget.controller.isAdmin
+              ? 'Students chat'
+              : context.tr('community_title'),
           style: const TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
@@ -88,16 +90,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 return Card(
                   child: ListTile(
                     contentPadding: const EdgeInsets.all(14),
-                    leading: CircleAvatar(
-                      backgroundColor: const Color(0xFFFFE9E7),
-                      child: Text(
-                        contact['name'].toString()[0].toUpperCase(),
-                        style: const TextStyle(
-                          color: laravelRed,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
+                    leading: UserAvatar(user: contact),
                     title: Text(
                       contact['name'].toString(),
                       style: const TextStyle(fontWeight: FontWeight.w800),
@@ -245,9 +238,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
               widget.contact['name'].toString(),
               style: const TextStyle(fontWeight: FontWeight.w900),
             ),
-            const Text(
-              'Realtime kupitia Laravel Reverb',
-              style: TextStyle(fontSize: 11, color: Color(0xFF667085)),
+            Text(
+              context.tr('realtime_reverb'),
+              style: const TextStyle(fontSize: 11, color: Color(0xFF667085)),
             ),
           ],
         ),
@@ -308,8 +301,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       controller: _text,
                       minLines: 1,
                       maxLines: 4,
-                      decoration: const InputDecoration(
-                        hintText: 'Andika ujumbe...',
+                      decoration: InputDecoration(
+                        hintText: context.tr('type_message'),
                         isDense: true,
                       ),
                       onSubmitted: (_) => _send(),

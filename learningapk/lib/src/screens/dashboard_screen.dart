@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../app_controller.dart';
+import '../localization.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import 'lesson_screen.dart';
@@ -64,18 +65,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onRetry: () => setState(_load),
         builder: (context, response) {
           final data = Map<String, dynamic>.from(response['data'] as Map);
-          final hero = Map<String, dynamic>.from(data['hero'] as Map);
+          var hero = Map<String, dynamic>.from(data['hero'] as Map);
           final stats = Map<String, dynamic>.from(data['stats'] as Map);
-          final slides = List<Map<String, dynamic>>.from(
+          var slides = List<Map<String, dynamic>>.from(
             (data['slides'] as List).map(
               (item) => Map<String, dynamic>.from(item as Map),
             ),
           );
-          final benefits = List<Map<String, dynamic>>.from(
+          var benefits = List<Map<String, dynamic>>.from(
             (data['benefits'] as List).map(
               (item) => Map<String, dynamic>.from(item as Map),
             ),
           );
+          if (widget.controller.locale.languageCode == 'en') {
+            hero = {
+              'eyebrow': 'LARAVEL FOR EVERYONE',
+              'title': 'Build modern web applications with confidence.',
+              'subtitle':
+                  'Learn Laravel step by step with practical lessons, real code and community support.',
+            };
+            slides = [
+              {
+                'title': 'Trusted around the world',
+                'description':
+                    'Laravel is trusted by millions of developers and supported by an active global community.',
+                'icon': 'public',
+              },
+              {
+                'title': 'Build faster',
+                'description':
+                    'Routing, authentication, queues, validation and Eloquent ORM work together beautifully.',
+                'icon': 'bolt',
+              },
+              {
+                'title': 'Beginner to professional',
+                'description':
+                    'Practical lessons, real examples and quizzes help you build production-ready skills.',
+                'icon': 'school',
+              },
+            ];
+            benefits = [
+              {
+                'title': 'Elegant syntax',
+                'description': 'Readable code that is easier to maintain.',
+              },
+              {
+                'title': 'Powerful ecosystem',
+                'description':
+                    'Official tools and a large community for every stage.',
+              },
+              {
+                'title': 'Career-ready skills',
+                'description':
+                    'Build APIs, dashboards, e-commerce and business systems.',
+              },
+            ];
+          }
           final next = data['continue_learning'] as Map?;
 
           return RefreshIndicator(
@@ -110,18 +155,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                     if (widget.controller.isAuthenticated)
-                      CircleAvatar(
-                        backgroundColor: const Color(0xFFFFE9E7),
-                        child: Text(
-                          widget.controller.user!['name']
-                              .toString()[0]
-                              .toUpperCase(),
-                          style: const TextStyle(
-                            color: laravelRed,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
+                      UserAvatar(user: widget.controller.user!),
                   ],
                 ),
                 const SizedBox(height: 28),
@@ -156,11 +190,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 FilledButton.icon(
                   onPressed: widget.onExplore,
                   icon: const Icon(Icons.play_arrow_rounded),
-                  label: const Text('Start Learning — Bure'),
+                  label: Text(context.tr('start_learning')),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Huhitaji login kusoma masomo. Jisajili tu kwa quiz, progress na community chat.',
+                Text(
+                  context.tr('guest_note'),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Color(0xFF667085), fontSize: 12),
                 ),
@@ -272,7 +306,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 28),
                 Text(
-                  'Kwa nini Laravel?',
+                  context.tr('why_laravel'),
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
@@ -307,9 +341,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         foregroundColor: Colors.white,
                         child: Icon(Icons.play_arrow),
                       ),
-                      title: const Text(
-                        'Endelea ulipoishia',
-                        style: TextStyle(fontWeight: FontWeight.w800),
+                      title: Text(
+                        context.tr('continue_learning'),
+                        style: const TextStyle(fontWeight: FontWeight.w800),
                       ),
                       subtitle: Text(next['lesson_title'].toString()),
                       onTap: () => Navigator.push(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_controller.dart';
+import '../localization.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 
@@ -70,15 +71,17 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     const SizedBox(height: 28),
                     Text(
-                      _register ? 'Anza safari yako' : 'Karibu tena 👋',
+                      _register
+                          ? context.tr('start_journey')
+                          : context.tr('welcome_back'),
                       style: Theme.of(context).textTheme.headlineMedium
                           ?.copyWith(fontWeight: FontWeight.w900, color: ink),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       _register
-                          ? 'Jiunge na community ya kujifunza Laravel Tanzania, ufanye quiz na uzungumze na admin.'
-                          : 'Ingia kufanya quiz, kuhifadhi maendeleo na kuchat na admin.',
+                          ? context.tr('register_subtitle')
+                          : context.tr('login_subtitle'),
                       style: const TextStyle(
                         color: Color(0xFF667085),
                         fontSize: 16,
@@ -89,9 +92,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       TextFormField(
                         controller: _name,
                         textCapitalization: TextCapitalization.words,
-                        decoration: const InputDecoration(
-                          labelText: 'Jina kamili',
-                          prefixIcon: Icon(Icons.person_outline),
+                        decoration: InputDecoration(
+                          labelText: context.tr('full_name'),
+                          prefixIcon: const Icon(Icons.person_outline),
                         ),
                         validator: (value) =>
                             value == null || value.trim().length < 2
@@ -104,9 +107,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       controller: _email,
                       keyboardType: TextInputType.emailAddress,
                       autocorrect: false,
-                      decoration: const InputDecoration(
-                        labelText: 'Email au username',
-                        prefixIcon: Icon(Icons.alternate_email),
+                      decoration: InputDecoration(
+                        labelText: context.tr('email_or_username'),
+                        prefixIcon: const Icon(Icons.alternate_email),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -123,7 +126,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       controller: _password,
                       obscureText: _obscure,
                       decoration: InputDecoration(
-                        labelText: 'Nenosiri',
+                        labelText: context.tr('password'),
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           onPressed: () => setState(() => _obscure = !_obscure),
@@ -153,7 +156,11 @@ class _AuthScreenState extends State<AuthScreen> {
                                   color: Colors.white,
                                 ),
                               )
-                            : Text(_register ? 'Tengeneza akaunti' : 'Ingia'),
+                            : Text(
+                                _register
+                                    ? context.tr('create_account')
+                                    : context.tr('sign_in'),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -164,8 +171,8 @@ class _AuthScreenState extends State<AuthScreen> {
                       },
                       child: Text(
                         _register
-                            ? 'Una akaunti tayari? Ingia'
-                            : 'Huna akaunti? Jisajili hapa',
+                            ? context.tr('have_account')
+                            : context.tr('no_account'),
                       ),
                     ),
                     const SizedBox(height: 24),
