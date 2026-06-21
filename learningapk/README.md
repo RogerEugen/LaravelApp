@@ -4,6 +4,11 @@ Flutter client with a public Laravel introduction slider, free guest lessons,
 community authentication, quizzes, progress, owner administration, and
 realtime user-admin chat. It supports Android 7.0 (API 24) and newer.
 
+The first launch language is English. Users can switch between English and
+Kiswahili from Profile, and the preference is saved on the device. Signed-in
+users can upload a profile picture from the gallery; admins see it in user and
+chat screens. Incoming Reverb messages play the backend notification sound.
+
 ## Run
 
 Start both Laravel services first:
