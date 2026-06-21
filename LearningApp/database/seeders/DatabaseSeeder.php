@@ -51,6 +51,19 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
+        User::updateOrCreate(
+            ['username' => 'neema.support'],
+            [
+                'name' => 'Neema Laravel Expert',
+                'email' => 'neema@learnlaravel.co.tz',
+                'password' => 'support123',
+                'role' => 'support',
+                'expertise' => 'Laravel APIs, Eloquent ORM & Authentication',
+                'bio' => 'Laravel support expert helping learners solve practical backend challenges.',
+                'is_active' => true,
+            ],
+        );
+
         $topics = [
             [
                 'title' => 'Utangulizi wa Laravel',
@@ -178,6 +191,104 @@ class DatabaseSeeder extends Seeder
                         ['option_text' => $text, 'is_correct' => $key === $quizData['correct']],
                     );
                 }
+            }
+        }
+
+        $englishTopics = [
+            'utangulizi-wa-laravel' => ['Introduction to Laravel', 'Understand Laravel, MVC, and the development environment.'],
+            'routes-na-controllers' => ['Routes and Controllers', 'Learn how URLs connect to application logic.'],
+            'database-na-eloquent' => ['Database and Eloquent', 'Use migrations, models, and relationships to manage data.'],
+        ];
+
+        foreach ($englishTopics as $slug => [$title, $description]) {
+            $topic = Topic::where('slug', $slug)->first();
+            $topic?->update([
+                'title_sw' => $topic->title,
+                'description_sw' => $topic->description,
+                'title' => $title,
+                'description' => $description,
+            ]);
+        }
+
+        $englishLessons = [
+            'laravel-ni-nini' => [
+                'What is Laravel?',
+                'Discover Laravel and its advantages in web development.',
+                "Laravel is a PHP framework for building web applications and APIs with elegant syntax.\n\nIt provides routing, Eloquent ORM, validation, authentication, queues, and testing in one productive ecosystem.",
+                'Think of Laravel as a building foundation: routes are doors, controllers are work rooms, and the database is the information store.',
+                'What is Laravel?',
+                ['A' => 'A PHP framework', 'B' => 'A database', 'C' => 'An Android OS', 'D' => 'A CSS library'],
+                'Laravel is a web framework built with PHP.',
+            ],
+            'muundo-wa-mvc' => [
+                'MVC Architecture',
+                'Understand Models, Views, and Controllers.',
+                "MVC separates application responsibilities.\n\nModels manage data, Views present interfaces, and Controllers receive requests and coordinate responses.",
+                'In a restaurant, the waiter is the Controller, the kitchen is the Model, and the served plate is the View.',
+                'Which MVC component manages data?',
+                ['A' => 'View', 'B' => 'Model', 'C' => 'Route', 'D' => 'Blade'],
+                'The Model manages data and business rules.',
+            ],
+            'basic-routing' => [
+                'Basic Routing',
+                'Create GET and POST routes.',
+                "A route tells Laravel what to do when a request arrives.\n\nGET reads data, POST creates data, PUT/PATCH updates data, and DELETE removes data.",
+                'A route is an address, while its controller is the office that receives and handles the request.',
+                'Which HTTP method creates a new record?',
+                ['A' => 'GET', 'B' => 'DELETE', 'C' => 'POST', 'D' => 'HEAD'],
+                'POST sends a new resource to the server.',
+            ],
+            'controllers-na-validation' => [
+                'Controllers and Validation',
+                'Handle requests and validate safe input.',
+                "Controllers keep request logic inside dedicated classes.\n\nValidation ensures data has the expected structure before it is stored.",
+                'Validation is like a security guard checking a form before it enters an office.',
+                'Which status code commonly represents API validation errors?',
+                ['A' => '200', 'B' => '201', 'C' => '404', 'D' => '422'],
+                'Laravel commonly returns HTTP 422 for validation errors.',
+            ],
+            'migrations-na-models' => [
+                'Migrations and Models',
+                'Create a database schema and an Eloquent model.',
+                "A migration is version control for your database schema. A model is a class representing a table.\n\nMigrations let every team member build the same schema.",
+                'A migration is a building plan; a model is the manager who knows how to access its information.',
+                'Which command runs migrations?',
+                ['A' => 'php artisan migrate', 'B' => 'php artisan serve', 'C' => 'composer test', 'D' => 'npm run dev'],
+                'php artisan migrate runs migrations that have not yet been executed.',
+            ],
+        ];
+
+        foreach ($englishLessons as $slug => $english) {
+            $lesson = Lesson::where('slug', $slug)->first();
+            if (! $lesson) {
+                continue;
+            }
+            $lesson->update([
+                'title_sw' => $lesson->title,
+                'short_description_sw' => $lesson->short_description,
+                'content_sw' => $lesson->content,
+                'code_example_sw' => $lesson->code_example,
+                'real_life_example_sw' => $lesson->real_life_example,
+                'title' => $english[0],
+                'short_description' => $english[1],
+                'content' => $english[2],
+                'real_life_example' => $english[3],
+            ]);
+            $quiz = $lesson->quizzes()->first();
+            if (! $quiz) {
+                continue;
+            }
+            $quiz->update([
+                'question_sw' => $quiz->question,
+                'explanation_sw' => $quiz->explanation,
+                'question' => $english[4],
+                'explanation' => $english[6],
+            ]);
+            foreach ($quiz->options as $option) {
+                $option->update([
+                    'option_text_sw' => $option->option_text,
+                    'option_text' => $english[5][$option->option_key],
+                ]);
             }
         }
     }

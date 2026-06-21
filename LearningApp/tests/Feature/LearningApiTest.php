@@ -41,6 +41,18 @@ it('allows guests to browse learning content', function () {
         ->assertJsonPath('data.requires_login_for_quiz', true);
 });
 
+it('returns learning content in the selected language', function () {
+    $lesson = Lesson::where('slug', 'laravel-ni-nini')->firstOrFail();
+
+    $this->getJson("/api/v1/lessons/{$lesson->id}?lang=en")
+        ->assertOk()
+        ->assertJsonPath('data.title', 'What is Laravel?');
+
+    $this->getJson("/api/v1/lessons/{$lesson->id}?lang=sw")
+        ->assertOk()
+        ->assertJsonPath('data.title', 'Laravel ni nini?');
+});
+
 it('authenticates and stores learning progress', function () {
     $user = User::where('role', 'student')->first();
     $token = $user->createToken('test')->plainTextToken;
@@ -84,6 +96,18 @@ it('supports realtime community messages between student and admin', function ()
         ->assertJsonPath('data.sender_id', $student->id);
 
     Event::assertDispatched(ChatMessageSent::class);
+});
+
+it('lists registered support experts for students', function () {
+    $student = User::where('role', 'student')->firstOrFail();
+    $token = $student->createToken('support-list')->plainTextToken;
+
+    $this->withToken($token)->getJson('/api/v1/community/contacts')
+        ->assertOk()
+        ->assertJsonFragment([
+            'role' => 'support',
+            'expertise' => 'Laravel APIs, Eloquent ORM & Authentication',
+        ]);
 });
 
 it('allows a user to upload a profile picture visible in user data', function () {
