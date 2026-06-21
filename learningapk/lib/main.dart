@@ -7,6 +7,10 @@ import 'src/services/api_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final controller = AppController(ApiService());
-  await controller.restoreSession();
+  try {
+    await controller.restoreSession();
+  } catch (_) {
+    // A damaged local preference must never prevent the app from starting.
+  }
   runApp(LearnLaravelApp(controller: controller));
 }

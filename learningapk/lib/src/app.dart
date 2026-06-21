@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_controller.dart';
 import 'screens/admin/admin_shell.dart';
@@ -19,6 +20,11 @@ class LearnLaravelApp extends StatelessWidget {
       theme: buildTheme(),
       locale: controller.locale,
       supportedLocales: const [Locale('en'), Locale('sw')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       home: ListenableBuilder(
         listenable: controller,
         builder: (context, _) {
