@@ -14,7 +14,7 @@ class ChatMessageSent implements ShouldBroadcastNow
 
     public function __construct(public ChatMessage $chatMessage)
     {
-        $this->chatMessage->loadMissing('sender:id,name,username,role');
+        $this->chatMessage->loadMissing('sender:id,name,username,role,profile_photo_path');
     }
 
     public function broadcastOn(): array

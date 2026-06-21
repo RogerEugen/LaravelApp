@@ -39,11 +39,11 @@ class CommunityController extends Controller
                     ->where('recipient_id', $request->user()->id)
                     ->whereNull('read_at')])
                 ->latest()
-                ->get(['id', 'name', 'username', 'email', 'is_active', 'created_at']);
+                ->get(['id', 'name', 'username', 'email', 'is_active', 'profile_photo_path', 'created_at']);
         } else {
             $contacts = User::where('role', 'admin')
                 ->where('is_active', true)
-                ->get(['id', 'name', 'username', 'email']);
+                ->get(['id', 'name', 'username', 'email', 'profile_photo_path']);
         }
 
         return response()->json(['success' => true, 'data' => $contacts]);
@@ -58,7 +58,7 @@ class CommunityController extends Controller
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
-        $messages = ChatMessage::with('sender:id,name,username,role')
+        $messages = ChatMessage::with('sender:id,name,username,role,profile_photo_path')
             ->where(function ($query) use ($request, $user) {
                 $query->where('sender_id', $request->user()->id)
                     ->where('recipient_id', $user->id);
