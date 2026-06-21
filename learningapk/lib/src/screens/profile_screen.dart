@@ -279,6 +279,14 @@ class _GuestProfile extends StatelessWidget {
               icon: const Icon(Icons.login_rounded),
               label: Text(context.tr('sign_in_or_register')),
             ),
+            const SizedBox(height: 24),
+            const Text(
+              'Developed by Rogers Eugen',
+              style: TextStyle(
+                color: Color(0xFF98A2B3),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),

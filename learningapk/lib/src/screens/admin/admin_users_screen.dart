@@ -40,6 +40,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           'Manage users',
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Add support expert',
+            onPressed: _addSupport,
+            icon: const Icon(Icons.support_agent_rounded),
+          ),
+        ],
       ),
       body: PagePadding(
         child: Column(
@@ -134,5 +141,86 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _addSupport() async {
+    final name = TextEditingController();
+    final username = TextEditingController();
+    final email = TextEditingController();
+    final expertise = TextEditingController();
+    final bio = TextEditingController();
+    final password = TextEditingController(text: 'support123');
+    final created = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Register support expert'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: name,
+                decoration: const InputDecoration(labelText: 'Full name'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: username,
+                decoration: const InputDecoration(labelText: 'Username'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: email,
+                decoration: const InputDecoration(labelText: 'Email'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: expertise,
+                decoration: const InputDecoration(
+                  labelText: 'Laravel expertise',
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: bio,
+                maxLines: 3,
+                decoration: const InputDecoration(labelText: 'Short bio'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: password,
+                decoration: const InputDecoration(
+                  labelText: 'Temporary password',
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              await widget.controller.api.post('/admin/supports', {
+                'name': name.text.trim(),
+                'username': username.text.trim(),
+                'email': email.text.trim(),
+                'expertise': expertise.text.trim(),
+                'bio': bio.text.trim(),
+                'password': password.text,
+              });
+              if (dialogContext.mounted) Navigator.pop(dialogContext, true);
+            },
+            child: const Text('Create expert'),
+          ),
+        ],
+      ),
+    );
+    if (created == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Support expert registered.')),
+      );
+    }
   }
 }

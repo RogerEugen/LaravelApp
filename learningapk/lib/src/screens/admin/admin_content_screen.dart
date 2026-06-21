@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../app_controller.dart';
@@ -255,7 +258,9 @@ class TopicEditor extends StatefulWidget {
 
 class _TopicEditorState extends State<TopicEditor> {
   final _title = TextEditingController();
+  final _titleSw = TextEditingController();
   final _description = TextEditingController();
+  final _descriptionSw = TextEditingController();
   String _level = 'Beginner';
   bool _saving = false;
 
@@ -269,13 +274,32 @@ class _TopicEditorState extends State<TopicEditor> {
           children: [
             TextField(
               controller: _title,
-              decoration: const InputDecoration(labelText: 'Jina la topic'),
+              decoration: const InputDecoration(
+                labelText: 'Topic title (English)',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _titleSw,
+              decoration: const InputDecoration(
+                labelText: 'Jina la mada (Kiswahili)',
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _description,
               maxLines: 4,
-              decoration: const InputDecoration(labelText: 'Maelezo'),
+              decoration: const InputDecoration(
+                labelText: 'Description (English)',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _descriptionSw,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Maelezo (Kiswahili)',
+              ),
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
@@ -309,8 +333,10 @@ class _TopicEditorState extends State<TopicEditor> {
                       .replaceAll(RegExp(r'^-|-$'), '');
                   await widget.controller.api.post('/admin/topics', {
                     'title': _title.text.trim(),
+                    'title_sw': _titleSw.text.trim(),
                     'slug': slug,
                     'description': _description.text.trim(),
+                    'description_sw': _descriptionSw.text.trim(),
                     'icon': 'school',
                     'level': _level,
                     'order_number':
@@ -341,9 +367,16 @@ class LessonEditor extends StatefulWidget {
 
 class _LessonEditorState extends State<LessonEditor> {
   final _title = TextEditingController();
+  final _titleSw = TextEditingController();
   final _summary = TextEditingController();
+  final _summarySw = TextEditingController();
   final _content = TextEditingController();
+  final _contentSw = TextEditingController();
   final _code = TextEditingController();
+  final _resourceTitle = TextEditingController();
+  final _resourceUrl = TextEditingController();
+  File? _video;
+  int _videoSeconds = 60;
   int? _topicId;
 
   @override
@@ -377,26 +410,93 @@ class _LessonEditorState extends State<LessonEditor> {
               const SizedBox(height: 10),
               TextField(
                 controller: _title,
-                decoration: const InputDecoration(labelText: 'Title'),
+                decoration: const InputDecoration(labelText: 'Title (English)'),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _titleSw,
+                decoration: const InputDecoration(
+                  labelText: 'Title (Kiswahili)',
+                ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: _summary,
                 decoration: const InputDecoration(
-                  labelText: 'Short description',
+                  labelText: 'Short description (English)',
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _summarySw,
+                decoration: const InputDecoration(
+                  labelText: 'Maelezo mafupi (Kiswahili)',
                 ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: _content,
                 maxLines: 6,
-                decoration: const InputDecoration(labelText: 'Lesson content'),
+                decoration: const InputDecoration(
+                  labelText: 'Lesson content (English)',
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _contentSw,
+                maxLines: 6,
+                decoration: const InputDecoration(
+                  labelText: 'Maudhui ya somo (Kiswahili)',
+                ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: _code,
                 maxLines: 4,
-                decoration: const InputDecoration(labelText: 'Code example'),
+                decoration: const InputDecoration(
+                  labelText: 'Dedicated code sample',
+                ),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final result = await FilePicker.pickFiles(
+                    type: FileType.video,
+                  );
+                  if (result?.files.single.path != null) {
+                    setState(() => _video = File(result!.files.single.path!));
+                  }
+                },
+                icon: const Icon(Icons.video_library_rounded),
+                label: Text(
+                  _video == null
+                      ? 'Choose short video (max 60 sec)'
+                      : 'Video selected',
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                initialValue: '60',
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Video duration in seconds (1-60)',
+                ),
+                onChanged: (value) => _videoSeconds = int.tryParse(value) ?? 60,
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _resourceTitle,
+                decoration: const InputDecoration(
+                  labelText: 'Resource title (optional)',
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _resourceUrl,
+                keyboardType: TextInputType.url,
+                decoration: const InputDecoration(
+                  labelText: 'Resource URL (optional)',
+                ),
               ),
             ],
           ),
@@ -414,18 +514,34 @@ class _LessonEditorState extends State<LessonEditor> {
                 .toLowerCase()
                 .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
                 .replaceAll(RegExp(r'^-|-$'), '');
-            await widget.controller.api.post('/admin/lessons', {
-              'topic_id': _topicId,
+            final fields = <String, String>{
+              'topic_id': '$_topicId',
               'title': _title.text.trim(),
+              'title_sw': _titleSw.text.trim(),
               'slug': slug,
               'short_description': _summary.text.trim(),
+              'short_description_sw': _summarySw.text.trim(),
               'content': _content.text.trim(),
+              'content_sw': _contentSw.text.trim(),
               'code_example': _code.text.trim(),
               'real_life_example': '',
-              'order_number': DateTime.now().millisecondsSinceEpoch ~/ 1000,
-              'estimated_minutes': 10,
-              'is_active': true,
-            });
+              'order_number':
+                  '${DateTime.now().millisecondsSinceEpoch ~/ 1000}',
+              'estimated_minutes': '10',
+              'is_active': '1',
+              if (_video != null) 'video_duration_seconds': '$_videoSeconds',
+              if (_resourceTitle.text.trim().isNotEmpty)
+                'resources[0][title]': _resourceTitle.text.trim(),
+              if (_resourceTitle.text.trim().isNotEmpty)
+                'resources[0][title_sw]': _resourceTitle.text.trim(),
+              if (_resourceUrl.text.trim().isNotEmpty)
+                'resources[0][url]': _resourceUrl.text.trim(),
+            };
+            await widget.controller.api.postMultipart(
+              '/admin/lessons',
+              fields,
+              file: _video,
+            );
             if (context.mounted) Navigator.pop(context, true);
           },
           child: const Text('Hifadhi'),
@@ -450,8 +566,11 @@ class QuizEditor extends StatefulWidget {
 
 class _QuizEditorState extends State<QuizEditor> {
   final _question = TextEditingController();
+  final _questionSw = TextEditingController();
   final _explanation = TextEditingController();
+  final _explanationSw = TextEditingController();
   final _options = List.generate(4, (_) => TextEditingController());
+  final _optionsSw = List.generate(4, (_) => TextEditingController());
   int? _lessonId;
   String _correct = 'A';
 
@@ -489,7 +608,17 @@ class _QuizEditorState extends State<QuizEditor> {
               TextField(
                 controller: _question,
                 maxLines: 3,
-                decoration: const InputDecoration(labelText: 'Swali'),
+                decoration: const InputDecoration(
+                  labelText: 'Question (English)',
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _questionSw,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Swali (Kiswahili)',
+                ),
               ),
               const SizedBox(height: 10),
               ...List.generate(
@@ -499,7 +628,21 @@ class _QuizEditorState extends State<QuizEditor> {
                   child: TextField(
                     controller: _options[index],
                     decoration: InputDecoration(
-                      labelText: 'Option ${String.fromCharCode(65 + index)}',
+                      labelText:
+                          'English option ${String.fromCharCode(65 + index)}',
+                    ),
+                  ),
+                ),
+              ),
+              ...List.generate(
+                4,
+                (index) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: TextField(
+                    controller: _optionsSw[index],
+                    decoration: InputDecoration(
+                      labelText:
+                          'Kiswahili option ${String.fromCharCode(65 + index)}',
                     ),
                   ),
                 ),
@@ -518,7 +661,17 @@ class _QuizEditorState extends State<QuizEditor> {
               TextField(
                 controller: _explanation,
                 maxLines: 3,
-                decoration: const InputDecoration(labelText: 'Explanation'),
+                decoration: const InputDecoration(
+                  labelText: 'Explanation (English)',
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _explanationSw,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Maelezo (Kiswahili)',
+                ),
               ),
             ],
           ),
@@ -534,11 +687,14 @@ class _QuizEditorState extends State<QuizEditor> {
             await widget.controller.api.post('/admin/quizzes', {
               'lesson_id': _lessonId,
               'question': _question.text.trim(),
+              'question_sw': _questionSw.text.trim(),
               'explanation': _explanation.text.trim(),
+              'explanation_sw': _explanationSw.text.trim(),
               'difficulty': 'Easy',
               'order_number': DateTime.now().millisecondsSinceEpoch ~/ 1000,
               'is_active': true,
               'options': _options.map((item) => item.text.trim()).toList(),
+              'options_sw': _optionsSw.map((item) => item.text.trim()).toList(),
               'correct_key': _correct,
             });
             if (context.mounted) Navigator.pop(context, true);
