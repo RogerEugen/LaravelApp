@@ -23,7 +23,7 @@ Demo account:
 
 Owner admin:
 
-- Username: `rogerscharleseugen`
+- Username: `rogers`
 - Password: `roger123`
 
 API routes are under `/api/v1`. Protected requests must send:

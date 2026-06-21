@@ -57,7 +57,7 @@ it('rejects protected endpoints without a token', function () {
 });
 
 it('allows the owner admin to manage users and content', function () {
-    $admin = User::where('username', 'rogerscharleseugen')->firstOrFail();
+    $admin = User::where('username', 'rogers')->firstOrFail();
     expect($admin->role)->toBe('admin');
     expect(password_verify('roger123', $admin->password))->toBeTrue();
     $token = $admin->createToken('admin-test')->plainTextToken;

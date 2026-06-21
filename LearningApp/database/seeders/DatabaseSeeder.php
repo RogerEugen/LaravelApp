@@ -30,12 +30,23 @@ class DatabaseSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['username' => 'rogerscharleseugen'],
+            ['username' => 'rogers'],
             [
-                'name' => 'Rogers Charles Eugen',
-                'email' => 'rogerscharleseugen@learnlaravel.co.tz',
+                'name' => 'Rogers App Owner',
+                'email' => 'rogers@learnlaravel.co.tz',
                 'password' => 'roger123',
                 'role' => 'admin',
+                'is_active' => true,
+            ],
+        );
+
+        User::updateOrCreate(
+            ['email' => 'asha.demo@learnlaravel.co.tz'],
+            [
+                'name' => 'Asha Demo',
+                'username' => 'ashademo',
+                'password' => 'password123',
+                'role' => 'student',
                 'is_active' => true,
             ],
         );
