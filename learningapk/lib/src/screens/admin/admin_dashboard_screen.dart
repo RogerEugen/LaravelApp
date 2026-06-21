@@ -21,7 +21,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     _load();
   }
 
-  void _load() => _future = widget.controller.api.get('/admin/dashboard');
+  void _load() {
+    _future = widget.controller.api.get('/admin/dashboard');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +52,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       body: PagePadding(
         child: ApiFutureBuilder(
           future: _future,
-          onRetry: () => setState(_load),
+          onRetry: () => setState(() {
+            _load();
+          }),
           builder: (context, response) {
             final data = Map<String, dynamic>.from(response['data'] as Map);
             final recent = List<Map<String, dynamic>>.from(
@@ -67,7 +71,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ('Messages', data['messages'], Icons.forum_rounded),
             ];
             return RefreshIndicator(
-              onRefresh: () async => setState(_load),
+              onRefresh: () async => setState(() {
+                _load();
+              }),
               child: ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [

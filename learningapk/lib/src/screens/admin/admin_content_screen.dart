@@ -81,7 +81,11 @@ class _AdminContentScreenState extends State<AdminContentScreen>
           ) ??
           false;
     }
-    if (changed) setState(_load);
+    if (changed) {
+      setState(() {
+        _load();
+      });
+    }
   }
 
   @override
@@ -113,19 +117,25 @@ class _AdminContentScreenState extends State<AdminContentScreen>
             future: _topics,
             type: 'topics',
             controller: widget.controller,
-            onChanged: () => setState(_load),
+            onChanged: () => setState(() {
+              _load();
+            }),
           ),
           _ContentList(
             future: _lessons,
             type: 'lessons',
             controller: widget.controller,
-            onChanged: () => setState(_load),
+            onChanged: () => setState(() {
+              _load();
+            }),
           ),
           _ContentList(
             future: _quizzes,
             type: 'quizzes',
             controller: widget.controller,
-            onChanged: () => setState(_load),
+            onChanged: () => setState(() {
+              _load();
+            }),
           ),
         ],
       ),

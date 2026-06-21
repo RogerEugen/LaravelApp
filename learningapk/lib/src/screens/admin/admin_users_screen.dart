@@ -50,17 +50,23 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 hintText: 'Tafuta jina au email...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
-                  onPressed: () => setState(_load),
+                  onPressed: () => setState(() {
+                    _load();
+                  }),
                   icon: const Icon(Icons.arrow_forward),
                 ),
               ),
-              onSubmitted: (_) => setState(_load),
+              onSubmitted: (_) => setState(() {
+                _load();
+              }),
             ),
             const SizedBox(height: 14),
             Expanded(
               child: ApiFutureBuilder(
                 future: _future,
-                onRetry: () => setState(_load),
+                onRetry: () => setState(() {
+                  _load();
+                }),
                 builder: (context, response) {
                   final page = Map<String, dynamic>.from(
                     response['data'] as Map,
@@ -112,7 +118,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                               await widget.controller.api.patch(
                                 '/admin/users/${user['id']}/toggle',
                               );
-                              setState(_load);
+                              setState(() {
+                                _load();
+                              });
                             },
                           ),
                         ),
