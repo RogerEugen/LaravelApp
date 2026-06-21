@@ -45,6 +45,6 @@ computer LAN IP for physical-phone realtime chat.
 Admin login:
 
 ```text
-rogerscharleseugen
+rogers
 roger123
 ```
