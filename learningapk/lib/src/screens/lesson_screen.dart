@@ -30,8 +30,9 @@ class _LessonScreenState extends State<LessonScreen> {
     _load();
   }
 
-  void _load() =>
-      _future = widget.controller.api.get('/lessons/${widget.lessonId}');
+  void _load() {
+    _future = widget.controller.api.get('/lessons/${widget.lessonId}');
+  }
 
   Future<void> _complete() async {
     if (!await requireCommunityLogin(context, widget.controller)) return;
@@ -42,7 +43,9 @@ class _LessonScreenState extends State<LessonScreen> {
       );
       if (mounted) {
         showMessage(context, response['message'].toString());
-        setState(_load);
+        setState(() {
+          _load();
+        });
       }
     } catch (error) {
       if (mounted) showMessage(context, error.toString());
@@ -57,7 +60,9 @@ class _LessonScreenState extends State<LessonScreen> {
       appBar: AppBar(title: Text(context.tr('lesson'))),
       body: ApiFutureBuilder(
         future: _future,
-        onRetry: () => setState(_load),
+        onRetry: () => setState(() {
+          _load();
+        }),
         builder: (context, response) {
           final lesson = Map<String, dynamic>.from(response['data'] as Map);
           return ListView(

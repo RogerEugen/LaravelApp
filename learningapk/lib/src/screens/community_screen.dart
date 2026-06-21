@@ -47,7 +47,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
           label: context.tr('sign_in_or_register'),
           onPressed: () async {
             if (await requireCommunityLogin(context, widget.controller)) {
-              setState(_load);
+              setState(() {
+                _load();
+              });
             }
           },
         ),
@@ -67,7 +69,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
       body: PagePadding(
         child: ApiFutureBuilder(
           future: _future!,
-          onRetry: () => setState(_load),
+          onRetry: () => setState(() {
+            _load();
+          }),
           builder: (context, response) {
             final contacts = List<Map<String, dynamic>>.from(
               (response['data'] as List).map(
@@ -102,15 +106,20 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     trailing: unread > 0
                         ? Badge(label: Text('$unread'))
                         : const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ConversationScreen(
-                          controller: widget.controller,
-                          contact: contact,
+                    onTap: () =>
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ConversationScreen(
+                              controller: widget.controller,
+                              contact: contact,
+                            ),
+                          ),
+                        ).then(
+                          (_) => setState(() {
+                            _load();
+                          }),
                         ),
-                      ),
-                    ).then((_) => setState(_load)),
                   ),
                 );
               },

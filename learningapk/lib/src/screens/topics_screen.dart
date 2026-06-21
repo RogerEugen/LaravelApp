@@ -23,7 +23,9 @@ class _TopicsScreenState extends State<TopicsScreen> {
     _load();
   }
 
-  void _load() => _future = widget.controller.api.get('/topics');
+  void _load() {
+    _future = widget.controller.api.get('/topics');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +48,9 @@ class _TopicsScreenState extends State<TopicsScreen> {
       body: PagePadding(
         child: ApiFutureBuilder(
           future: _future,
-          onRetry: () => setState(_load),
+          onRetry: () => setState(() {
+            _load();
+          }),
           builder: (context, response) {
             final topics = List<Map<String, dynamic>>.from(
               (response['data'] as List).map(
@@ -54,7 +58,9 @@ class _TopicsScreenState extends State<TopicsScreen> {
               ),
             );
             return RefreshIndicator(
-              onRefresh: () async => setState(_load),
+              onRefresh: () async => setState(() {
+                _load();
+              }),
               child: ListView.separated(
                 physics: const AlwaysScrollableScrollPhysics(),
                 itemCount: topics.length,
@@ -66,15 +72,20 @@ class _TopicsScreenState extends State<TopicsScreen> {
                   return Card(
                     child: InkWell(
                       borderRadius: BorderRadius.circular(22),
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => TopicDetailScreen(
-                            controller: widget.controller,
-                            topicId: topic['id'] as int,
+                      onTap: () =>
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TopicDetailScreen(
+                                controller: widget.controller,
+                                topicId: topic['id'] as int,
+                              ),
+                            ),
+                          ).then(
+                            (_) => setState(() {
+                              _load();
+                            }),
                           ),
-                        ),
-                      ).then((_) => setState(_load)),
                       child: Padding(
                         padding: const EdgeInsets.all(18),
                         child: Row(

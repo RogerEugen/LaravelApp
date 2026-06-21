@@ -23,7 +23,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
     _load();
   }
 
-  void _load() => _future = widget.controller.api.get('/progress');
+  void _load() {
+    _future = widget.controller.api.get('/progress');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +48,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
       body: PagePadding(
         child: ApiFutureBuilder(
           future: _future,
-          onRetry: () => setState(_load),
+          onRetry: () => setState(() {
+            _load();
+          }),
           builder: (context, response) {
             final items = List<Map<String, dynamic>>.from(
               (response['data'] as List).map(
@@ -61,7 +65,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
               );
             }
             return RefreshIndicator(
-              onRefresh: () async => setState(_load),
+              onRefresh: () async => setState(() {
+                _load();
+              }),
               child: ListView.separated(
                 physics: const AlwaysScrollableScrollPhysics(),
                 itemCount: items.length,
@@ -71,15 +77,20 @@ class _ProgressScreenState extends State<ProgressScreen> {
                   return Card(
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(14),
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => LessonScreen(
-                            controller: widget.controller,
-                            lessonId: item['lesson_id'] as int,
+                      onTap: () =>
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => LessonScreen(
+                                controller: widget.controller,
+                                lessonId: item['lesson_id'] as int,
+                              ),
+                            ),
+                          ).then(
+                            (_) => setState(() {
+                              _load();
+                            }),
                           ),
-                        ),
-                      ).then((_) => setState(_load)),
                       leading: CircleAvatar(
                         backgroundColor: item['is_completed'] == true
                             ? const Color(0xFFE7F8EF)

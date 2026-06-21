@@ -49,7 +49,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.dispose();
   }
 
-  void _load() => _future = widget.controller.api.get('/dashboard');
+  void _load() {
+    _future = widget.controller.api.get('/dashboard');
+  }
 
   IconData _icon(String icon) => switch (icon) {
     'bolt' => Icons.bolt_rounded,
@@ -62,7 +64,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       body: ApiFutureBuilder(
         future: _future,
-        onRetry: () => setState(_load),
+        onRetry: () => setState(() {
+          _load();
+        }),
         builder: (context, response) {
           final data = Map<String, dynamic>.from(response['data'] as Map);
           var hero = Map<String, dynamic>.from(data['hero'] as Map);
@@ -124,7 +128,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final next = data['continue_learning'] as Map?;
 
           return RefreshIndicator(
-            onRefresh: () async => setState(_load),
+            onRefresh: () async => setState(() {
+              _load();
+            }),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),

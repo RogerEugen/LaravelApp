@@ -28,8 +28,9 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
     _load();
   }
 
-  void _load() =>
-      _future = widget.controller.api.get('/topics/${widget.topicId}');
+  void _load() {
+    _future = widget.controller.api.get('/topics/${widget.topicId}');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,9 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
       body: PagePadding(
         child: ApiFutureBuilder(
           future: _future,
-          onRetry: () => setState(_load),
+          onRetry: () => setState(() {
+            _load();
+          }),
           builder: (context, response) {
             final topic = Map<String, dynamic>.from(response['data'] as Map);
             final lessons = List<Map<String, dynamic>>.from(
@@ -101,15 +104,20 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
                     child: Card(
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(14),
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => LessonScreen(
-                              controller: widget.controller,
-                              lessonId: lesson['id'] as int,
+                        onTap: () =>
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => LessonScreen(
+                                  controller: widget.controller,
+                                  lessonId: lesson['id'] as int,
+                                ),
+                              ),
+                            ).then(
+                              (_) => setState(() {
+                                _load();
+                              }),
                             ),
-                          ),
-                        ).then((_) => setState(_load)),
                         leading: CircleAvatar(
                           backgroundColor: completed
                               ? const Color(0xFFE7F8EF)
