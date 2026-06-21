@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.learningapk"
+    namespace = "tz.co.learnlaravel.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

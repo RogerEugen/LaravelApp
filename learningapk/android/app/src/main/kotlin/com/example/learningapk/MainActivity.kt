@@ -1,4 +1,4 @@
-package com.example.learningapk
+package tz.co.learnlaravel.app
 
 import io.flutter.embedding.android.FlutterActivity
 
