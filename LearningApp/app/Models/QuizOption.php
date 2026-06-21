@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class QuizOption extends Model
 {
-    protected $fillable = ['quiz_id', 'option_key', 'option_text', 'is_correct'];
+    protected $fillable = ['quiz_id', 'option_key', 'option_text', 'option_text_sw', 'is_correct'];
 
     protected function casts(): array
     {

@@ -12,7 +12,9 @@ class Lesson extends Model
     protected $fillable = [
         'topic_id', 'title', 'slug', 'short_description', 'content',
         'code_example', 'real_life_example', 'order_number',
-        'estimated_minutes', 'is_active',
+        'estimated_minutes', 'is_active', 'title_sw', 'short_description_sw',
+        'content_sw', 'code_example_sw', 'real_life_example_sw',
+        'video_path', 'video_duration_seconds',
     ];
 
     protected function casts(): array
@@ -37,6 +39,11 @@ class Lesson extends Model
     public function progress(): HasMany
     {
         return $this->hasMany(UserProgress::class);
+    }
+
+    public function resources(): HasMany
+    {
+        return $this->hasMany(LessonResource::class);
     }
 
     public function scopeActive(Builder $query): Builder

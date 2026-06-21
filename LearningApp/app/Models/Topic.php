@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Topic extends Model
 {
-    protected $fillable = ['title', 'slug', 'description', 'icon', 'level', 'order_number', 'is_active'];
+    protected $fillable = ['title', 'title_sw', 'slug', 'description', 'description_sw', 'icon', 'level', 'order_number', 'is_active'];
 
     protected function casts(): array
     {

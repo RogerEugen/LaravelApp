@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Quiz extends Model
 {
-    protected $fillable = ['lesson_id', 'question', 'explanation', 'difficulty', 'order_number', 'is_active'];
+    protected $fillable = ['lesson_id', 'question', 'question_sw', 'explanation', 'explanation_sw', 'difficulty', 'order_number', 'is_active'];
 
     protected function casts(): array
     {
