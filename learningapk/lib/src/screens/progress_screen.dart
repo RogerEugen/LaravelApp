@@ -24,7 +24,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
   }
 
   void _load() {
-    _future = widget.controller.api.get('/progress');
+    _future = widget.controller.api.get(
+      widget.controller.localizedPath('/progress'),
+    );
   }
 
   @override

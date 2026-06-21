@@ -8,6 +8,6 @@ void main() {
       const MaterialApp(home: Scaffold(body: LaravelMark())),
     );
 
-    expect(find.byIcon(Icons.code_rounded), findsOneWidget);
+    expect(find.byType(Image), findsOneWidget);
   });
 }

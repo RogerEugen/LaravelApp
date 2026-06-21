@@ -13,7 +13,7 @@ class LaravelMark extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: laravelRed,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(size * .28),
         boxShadow: const [
           BoxShadow(
@@ -23,7 +23,10 @@ class LaravelMark extends StatelessWidget {
           ),
         ],
       ),
-      child: Icon(Icons.code_rounded, color: Colors.white, size: size * .55),
+      child: Padding(
+        padding: EdgeInsets.all(size * .14),
+        child: Image.asset('assets/icon/laravel-mark.png'),
+      ),
     );
   }
 }

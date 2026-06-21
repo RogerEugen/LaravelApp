@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:video_player/video_player.dart';
 
 import '../app_controller.dart';
 import '../auth_gate.dart';
@@ -31,7 +33,9 @@ class _LessonScreenState extends State<LessonScreen> {
   }
 
   void _load() {
-    _future = widget.controller.api.get('/lessons/${widget.lessonId}');
+    _future = widget.controller.api.get(
+      widget.controller.localizedPath('/lessons/${widget.lessonId}'),
+    );
   }
 
   Future<void> _complete() async {
@@ -155,6 +159,38 @@ class _LessonScreenState extends State<LessonScreen> {
                   ),
                 ),
               ],
+              if (lesson['video_url'] != null) ...[
+                const SizedBox(height: 16),
+                _LessonVideo(
+                  url: lesson['video_url'].toString(),
+                  durationSeconds:
+                      lesson['video_duration_seconds'] as int? ?? 60,
+                ),
+              ],
+              if ((lesson['resources'] as List?)?.isNotEmpty == true) ...[
+                const SizedBox(height: 16),
+                _SectionCard(
+                  title: 'Learning resources',
+                  icon: Icons.link_rounded,
+                  child: Column(
+                    children: (lesson['resources'] as List).map((raw) {
+                      final resource = Map<String, dynamic>.from(raw as Map);
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.open_in_new_rounded),
+                        title: Text(resource['title'].toString()),
+                        subtitle: resource['description'] != null
+                            ? Text(resource['description'].toString())
+                            : null,
+                        onTap: () => launchUrl(
+                          Uri.parse(resource['url'].toString()),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
               const SizedBox(height: 22),
               if (lesson['is_completed'] != true)
                 FilledButton.icon(
@@ -205,6 +241,78 @@ class _LessonScreenState extends State<LessonScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _LessonVideo extends StatefulWidget {
+  const _LessonVideo({required this.url, required this.durationSeconds});
+
+  final String url;
+  final int durationSeconds;
+
+  @override
+  State<_LessonVideo> createState() => _LessonVideoState();
+}
+
+class _LessonVideoState extends State<_LessonVideo> {
+  late final VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
+      ..initialize().then((_) {
+        if (mounted) setState(() {});
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SectionCard(
+      title: 'One-minute demo video',
+      icon: Icons.play_circle_fill_rounded,
+      child: Column(
+        children: [
+          AspectRatio(
+            aspectRatio: _controller.value.isInitialized
+                ? _controller.value.aspectRatio
+                : 16 / 9,
+            child: _controller.value.isInitialized
+                ? VideoPlayer(_controller)
+                : const Center(child: CircularProgressIndicator()),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              IconButton.filled(
+                onPressed: !_controller.value.isInitialized
+                    ? null
+                    : () {
+                        setState(() {
+                          _controller.value.isPlaying
+                              ? _controller.pause()
+                              : _controller.play();
+                        });
+                      },
+                icon: Icon(
+                  _controller.value.isPlaying
+                      ? Icons.pause_rounded
+                      : Icons.play_arrow_rounded,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text('Maximum ${widget.durationSeconds} seconds'),
+            ],
+          ),
+        ],
       ),
     );
   }

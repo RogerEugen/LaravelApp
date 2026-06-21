@@ -27,18 +27,20 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   void initState() {
     super.initState();
-    _future = widget.controller.api.get('/lessons/${widget.lessonId}/quiz');
+    _future = widget.controller.api.get(
+      widget.controller.localizedPath('/lessons/${widget.lessonId}/quiz'),
+    );
   }
 
   Future<void> _submit(List<Map<String, dynamic>> questions) async {
     if (_answers.length != questions.length) {
-      showMessage(context, 'Jibu maswali yote kabla ya kutuma.');
+      showMessage(context, context.tr('answer_all'));
       return;
     }
     setState(() => _submitting = true);
     try {
       final response = await widget.controller.api.post(
-        '/lessons/${widget.lessonId}/quiz',
+        widget.controller.localizedPath('/lessons/${widget.lessonId}/quiz'),
         {
           'answers': questions
               .map(
@@ -120,7 +122,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'SWALI ${entry.key + 1}',
+                            '${context.tr('question')} ${entry.key + 1}',
                             style: const TextStyle(
                               color: laravelRed,
                               fontSize: 11,
@@ -250,8 +252,8 @@ class _ResultView extends StatelessWidget {
               ),
               Text(
                 passed
-                    ? 'Hongera, umefaulu!'
-                    : 'Endelea kujifunza, jaribu tena.',
+                    ? context.tr('passed_message')
+                    : context.tr('retry_message'),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 16,

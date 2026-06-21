@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 import '../app_controller.dart';
@@ -79,10 +80,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
               ),
             );
             if (contacts.isEmpty) {
-              return const EmptyState(
+              return EmptyState(
                 icon: Icons.forum_outlined,
-                title: 'Hakuna mazungumzo bado',
-                message: 'Contacts wataonekana hapa.',
+                title: context.tr('no_conversations'),
+                message: context.tr('contacts_appear'),
               );
             }
             return ListView.separated(
@@ -100,7 +101,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                     subtitle: Text(
-                      contact['username']?.toString() ??
+                      contact['expertise']?.toString() ??
+                          contact['username']?.toString() ??
                           contact['email'].toString(),
                     ),
                     trailing: unread > 0
@@ -110,9 +112,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => ConversationScreen(
+                            builder: (_) => SupportDetailScreen(
                               controller: widget.controller,
-                              contact: contact,
+                              expert: contact,
                             ),
                           ),
                         ).then(
@@ -126,6 +128,70 @@ class _CommunityScreenState extends State<CommunityScreen> {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+class SupportDetailScreen extends StatelessWidget {
+  const SupportDetailScreen({
+    super.key,
+    required this.controller,
+    required this.expert,
+  });
+
+  final AppController controller;
+  final Map<String, dynamic> expert;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Laravel Expert')),
+      body: ListView(
+        padding: const EdgeInsets.all(22),
+        children: [
+          Center(child: UserAvatar(user: expert, radius: 54, showBorder: true)),
+          const SizedBox(height: 16),
+          Text(
+            expert['name'].toString(),
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            expert['expertise']?.toString() ?? 'Laravel Community Support',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: laravelRed,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                expert['bio']?.toString() ??
+                    'Ask this expert for Laravel guidance and practical help.',
+                style: const TextStyle(height: 1.6, color: ink),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          FilledButton.icon(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    ConversationScreen(controller: controller, contact: expert),
+              ),
+            ),
+            icon: const Icon(Icons.chat_bubble_rounded),
+            label: const Text('Ask for guidance'),
+          ),
+        ],
       ),
     );
   }
@@ -149,6 +215,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
   final _scroll = ScrollController();
   late final RealtimeService _realtime;
   StreamSubscription<Map<String, dynamic>>? _live;
+  Timer? _poller;
+  final _audio = AudioPlayer();
   List<Map<String, dynamic>> _messages = [];
   bool _loading = true;
   bool _sending = false;
@@ -181,6 +249,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
         }
       });
       await _realtime.connect(widget.controller.user!['id'] as int);
+      _poller = Timer.periodic(
+        const Duration(seconds: 2),
+        (_) => _pollMessages(),
+      );
     } catch (error) {
       if (mounted) showMessage(context, error.toString());
     } finally {
@@ -188,6 +260,35 @@ class _ConversationScreenState extends State<ConversationScreen> {
         setState(() => _loading = false);
         _jumpToBottom();
       }
+    }
+  }
+
+  Future<void> _pollMessages() async {
+    try {
+      final response = await widget.controller.api.get(
+        '/community/conversations/${widget.contact['id']}',
+      );
+      final fresh = List<Map<String, dynamic>>.from(
+        (response['data'] as List).map(
+          (item) => Map<String, dynamic>.from(item as Map),
+        ),
+      );
+      final known = _messages.map((item) => item['id']).toSet();
+      final incoming = fresh
+          .where((item) => !known.contains(item['id']))
+          .toList();
+      if (incoming.isEmpty || !mounted) return;
+      setState(() => _messages = fresh);
+      if (incoming.any(
+        (item) => item['sender_id'] != widget.controller.user!['id'],
+      )) {
+        await _audio.play(
+          UrlSource('${widget.controller.api.baseUrl}/notification-sound'),
+        );
+      }
+      _jumpToBottom();
+    } catch (_) {
+      // WebSocket or API may reconnect on the next polling cycle.
     }
   }
 
@@ -229,7 +330,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
   @override
   void dispose() {
     _live?.cancel();
+    _poller?.cancel();
     _realtime.dispose();
+    _audio.dispose();
     _text.dispose();
     _scroll.dispose();
     super.dispose();

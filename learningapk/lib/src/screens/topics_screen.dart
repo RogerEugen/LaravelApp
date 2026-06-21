@@ -24,7 +24,9 @@ class _TopicsScreenState extends State<TopicsScreen> {
   }
 
   void _load() {
-    _future = widget.controller.api.get('/topics');
+    _future = widget.controller.api.get(
+      widget.controller.localizedPath('/topics'),
+    );
   }
 
   @override

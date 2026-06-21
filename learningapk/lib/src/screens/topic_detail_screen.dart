@@ -29,7 +29,9 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
   }
 
   void _load() {
-    _future = widget.controller.api.get('/topics/${widget.topicId}');
+    _future = widget.controller.api.get(
+      widget.controller.localizedPath('/topics/${widget.topicId}'),
+    );
   }
 
   @override
