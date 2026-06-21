@@ -52,6 +52,7 @@ class ApiService {
       body: body,
     );
     final json = jsonDecode(response.body) as Map<String, dynamic>;
+    _normalizeUrls(json);
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw ApiException(
         json['message']?.toString() ?? 'Realtime authorization imeshindikana.',
@@ -59,6 +60,36 @@ class ApiService {
       );
     }
     return json;
+  }
+
+  Future<Map<String, dynamic>> uploadProfilePhoto(File photo) async {
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$baseUrl/profile'),
+    );
+    request.headers.addAll({
+      'Accept': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    });
+    request.files.add(
+      await http.MultipartFile.fromPath('profile_photo', photo.path),
+    );
+    final streamed = await request.send().timeout(const Duration(seconds: 30));
+    final response = await http.Response.fromStream(streamed);
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    _normalizeUrls(json);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException(
+        json['message']?.toString() ?? 'Profile photo upload failed.',
+        statusCode: response.statusCode,
+      );
+    }
+    return json;
+  }
+
+  String absoluteUrl(String path) {
+    final origin = Uri.parse(baseUrl).origin;
+    return '$origin${path.startsWith('/') ? path : '/$path'}';
   }
 
   Future<Map<String, dynamic>> _request(
@@ -107,6 +138,7 @@ class ApiService {
       final json = response.body.isEmpty
           ? <String, dynamic>{}
           : jsonDecode(response.body) as Map<String, dynamic>;
+      _normalizeUrls(json);
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
         final errors = json['errors'];
@@ -126,6 +158,24 @@ class ApiService {
       );
     } on FormatException {
       throw ApiException('Server imerudisha taarifa zisizoeleweka.');
+    }
+  }
+
+  void _normalizeUrls(dynamic value) {
+    if (value is Map) {
+      for (final entry in value.entries.toList()) {
+        if (entry.key == 'profile_photo_url' &&
+            entry.value is String &&
+            (entry.value as String).startsWith('/')) {
+          value[entry.key] = absoluteUrl(entry.value as String);
+        } else {
+          _normalizeUrls(entry.value);
+        }
+      }
+    } else if (value is List) {
+      for (final item in value) {
+        _normalizeUrls(item);
+      }
     }
   }
 }

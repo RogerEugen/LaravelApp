@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'services/api_service.dart';
@@ -10,12 +10,14 @@ class AppController extends ChangeNotifier {
   Map<String, dynamic>? user;
   bool busy = false;
   String? error;
+  Locale locale = const Locale('en');
 
   bool get isAuthenticated => api.token != null;
   bool get isAdmin => user?['role'] == 'admin';
 
   Future<void> restoreSession() async {
     final prefs = await SharedPreferences.getInstance();
+    locale = Locale(prefs.getString('app_language') ?? 'en');
     api.token = prefs.getString('auth_token');
     if (api.token == null) return;
     try {
@@ -24,6 +26,18 @@ class AppController extends ChangeNotifier {
     } catch (_) {
       await _clearSession();
     }
+  }
+
+  Future<void> setLanguage(String languageCode) async {
+    locale = Locale(languageCode);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('app_language', languageCode);
+    notifyListeners();
+  }
+
+  void updateUser(Map<String, dynamic> updatedUser) {
+    user = updatedUser;
+    notifyListeners();
   }
 
   Future<bool> login(String login, String password) => _authenticate('/login', {
